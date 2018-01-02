@@ -1,6 +1,4 @@
-# UPB component for Home Assistant
-
-Custom component https://home-assistant.io
+# UPB platform for Home Assistant
 
 
 ## Getting Started
