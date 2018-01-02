@@ -1,6 +1,9 @@
 """
 Support for UPB lights.
 
+For more details about this platform, please refer to the documentation at
+https://home-assistant.io/components/light.upb/
+
 Improvements:
 - ditch upb-cli and do everything natively
 - listen for status changes in real time on the network
@@ -28,14 +31,16 @@ import homeassistant.helpers.config_validation as cv
 # Home Assistant depends on 3rd party packages for API specific code.
 #REQUIREMENTS = ['awesome_lights==1.2.3']
 
-serial_port = '/dev/ttyS1'
-upb_net = '999'
+serial_port = ''
+upb_net = ''
 
 _LOGGER = logging.getLogger(__name__)
 
 #DOMAIN = 'UPB'
 
-#CONF_SERIAL_PORT = 'serial_port'
+CONF_SERIAL_PORT = 'serial_port'
+CONF_UPB_NET = 'upb_net'
+
 
 PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend({
     vol.Required(CONF_DEVICES): vol.All(cv.ensure_list, [
@@ -44,7 +49,8 @@ PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend({
             vol.Required(CONF_NAME): cv.string,
         }
     ]),
-    #vol.Required(CONF_SERIAL_PORT): cv.string,
+    vol.Required(CONF_SERIAL_PORT): cv.string,
+    vol.Required(CONF_UPB_NET): cv.string,
 
 })
 
@@ -61,26 +67,24 @@ def dump(obj):
         if hasattr( obj, attr ):
             print( "obj.%s = %s" % (attr, getattr(obj, attr)))
 
-
-
-
-
-
 # def get_unit_status(code):
 #     """Get on/off status for given unit"""
 #     output = check_output('heyu onstate ' + code, shell=True)
-#     return int(output.decode('utf-8')[0])
-    
+#     return int(output.decode('utf-8')[0])    
 
 def setup_platform(hass, config, add_devices, discovery_info=None):
     """Set up the UPB Light platform"""
+    
+    global serial_port, upb_net
+
+    serial_port = config.get(CONF_SERIAL_PORT)
+    upb_net = config.get(CONF_UPB_NET)
+    
     try:
-        #upb_command('info')
         upb_command('-V')
     except CalledProcessError as err:
         _LOGGER.error(err.output)
         return False
-
 
     add_devices(UPBLight(light) for light in config[CONF_DEVICES])
 
@@ -90,7 +94,7 @@ class UPBLight(Light):
     def __init__(self, light):
         """Initialize an UPB Light"""
         self._light = light
-        self._name = light['name']
+        self._name = 'upb_' + light['name']
         self._id = light['id']
         self._brightness = None
         self._state = None
@@ -99,8 +103,6 @@ class UPBLight(Light):
     def name(self):
         """Return the display name of this light"""
         return self._name
-
-
 
     @property
     def supported_features(self):
@@ -119,28 +121,19 @@ class UPBLight(Light):
 
 
     def turn_on(self, **kwargs):
-        """Instruct the light to turn on"""
-
-        #int(255 * brightness_pct/100)
-        #self._brightness = kwargs.get(ATTR_BRIGHTNESS)
-        
+        """Instruct the light to turn on"""   
         
         bright_pct = int((kwargs.get(ATTR_BRIGHTNESS,255)/255)*100)
 
-        #upb_command('on ' + self._id)
-        print(str(self._id)) ## This is the id value from the configutaion.yaml
+        #print(str(self._id)) ## This is the id value from the configutaion.yaml
         #upb_command('-n 99 -i 83 -t device -c goto -l 100 --send -p /dev/ttyS1' )
         upb_command(' -i ' + self._id + ' -t device -c goto -l ' + str(bright_pct) + ' --send' )
         
-        print("ddfk3k: " + str(bright_pct))
-        #print("asdf: " + str(self._brightness_pct))
-        print(kwargs)
+        #print(kwargs)
         self._state = True
 
     def turn_off(self, **kwargs):
         """Instruct the light to turn off"""
-        print('off ' + self._id)
-        #upb_command('off ' + self._id)
         upb_command(' -i ' + self._id + ' -t device -c goto -l 0 --send' )
         time.sleep(1)
         upb_command(' -i ' + self._id + ' -t device -c goto -l 0 --send' )
@@ -158,9 +151,8 @@ class UPBLight(Light):
 
 def upb_command(command):
     """Execute UPB command and check output"""
-    #return check_output(['heyu'] + command.split(' '), stderr=STDOUT)
-    #global config
     #print("config: " + config[CONF_SERIAL_PORT])
-    print("serial: "+ serial_port)
+    # print("serial: "+ serial_port)
+    # print("upbnet: "+ upb_net)
     return check_output(['upb-cli','-p',serial_port,'-n',upb_net] + command.split(' '), stderr=STDOUT)
     
