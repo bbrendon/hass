@@ -11,6 +11,14 @@ Custom component https://home-assistant.io
 1. Update your configuration.yaml with the platform setting such as the example below.
 1. Make sure the user running HASS has access to the serial port.
 
+## Limitations
+
+1. No access to links
+1. Not two-way. i.e. You can control the lights from HASS but changes in the physical world don't appear in HASS.
+1. Not fully python native - requires upb-cli node application.
+
+## Example configuration.yaml
+
 ```
 light:
   - platform: upb
