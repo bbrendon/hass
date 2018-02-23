@@ -20,7 +20,7 @@
 light:
   - platform: upb
     serial_port: /dev/ttyS1
-    upb_net: 82
+    network_id: 82
     devices:
       - id: 13
         name: Bathroom Fan
