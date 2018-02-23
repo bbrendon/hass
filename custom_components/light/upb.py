@@ -1,8 +1,5 @@
 """
-Support for UPB lights.
-
-For more details about this platform, please refer to the documentation at
-https://home-assistant.io/components/light.upb/
+Support for UPB lights
 
 Improvements:
 - ditch upb-cli and do everything natively
@@ -32,14 +29,14 @@ import homeassistant.helpers.config_validation as cv
 #REQUIREMENTS = ['awesome_lights==1.2.3']
 
 serial_port = ''
-upb_net = ''
+network_id = ''
 
 _LOGGER = logging.getLogger(__name__)
 
 #DOMAIN = 'UPB'
 
 CONF_SERIAL_PORT = 'serial_port'
-CONF_UPB_NET = 'upb_net'
+CONF_NETWORK_ID = 'network_id'
 
 
 PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend({
@@ -50,7 +47,7 @@ PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend({
         }
     ]),
     vol.Required(CONF_SERIAL_PORT): cv.string,
-    vol.Required(CONF_UPB_NET): cv.string,
+    vol.Required(CONF_NETWORK_ID): cv.string,
 
 })
 
@@ -75,10 +72,10 @@ def dump(obj):
 def setup_platform(hass, config, add_devices, discovery_info=None):
     """Set up the UPB Light platform"""
     
-    global serial_port, upb_net
+    global serial_port, network_id
 
     serial_port = config.get(CONF_SERIAL_PORT)
-    upb_net = config.get(CONF_UPB_NET)
+    network_id = config.get(CONF_NETWORK_ID)
     
     try:
         upb_command('-V')
@@ -153,6 +150,5 @@ def upb_command(command):
     """Execute UPB command and check output"""
     #print("config: " + config[CONF_SERIAL_PORT])
     # print("serial: "+ serial_port)
-    # print("upbnet: "+ upb_net)
-    return check_output(['upb-cli','-p',serial_port,'-n',upb_net] + command.split(' '), stderr=STDOUT)
-    
+    # print("upbnet: "+ network_id)
+    return check_output(['upb-cli','-p',serial_port,'-n',network_id] + command.split(' '), stderr=STDOUT)
