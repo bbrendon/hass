@@ -1,0 +1,10 @@
+{
+  "domain": "ruckus_direct",
+  "name": "Ruckus direct",
+  "documentation": "https://www.home-assistant.io/integrations/ruckus_direct",
+  "requirements": [
+    "pexpect==4.6.0"
+  ],
+  "dependencies": [],
+  "codeowners": []
+}
