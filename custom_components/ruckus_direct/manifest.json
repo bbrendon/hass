@@ -1,6 +1,7 @@
 {
   "domain": "ruckus_direct",
   "name": "Ruckus direct",
+  "version": "0.1",
   "documentation": "https://www.home-assistant.io/integrations/ruckus_direct",
   "requirements": [
     "pexpect==4.6.0"
